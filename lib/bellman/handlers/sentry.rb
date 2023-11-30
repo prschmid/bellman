@@ -47,9 +47,11 @@ module Bellman
       private
 
       def set_sentry_context(scope, objects)
-        scope.set_context(
-          objects: objects.map { |object| "#{object.class.name}|#{object.id}" }
-        )
+        objects.each do |object|
+          scope.set_context(
+            object.class.name, { id: object.id }
+          )
+        end
       end
 
       def set_sentry_user_and_tags(scope, data)
