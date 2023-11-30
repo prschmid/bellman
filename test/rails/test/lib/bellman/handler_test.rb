@@ -70,7 +70,7 @@ module Bellman
           error_handler = handler.handlers.first
 
           assert_equal id, error_handler[:id]
-          assert_equal error_handler, Bellman.error_handler(id:)
+          assert_equal error_handler, Bellman.handler(id:)
         end
       end
 
@@ -141,6 +141,23 @@ module Bellman
           log_handler_mock.verify
           sentry_handler_mock.verify
         end
+      end
+
+      def test_does_raise_error_if_unknown_severity_is_used
+        handler = Bellman::Handlers::Handler.new
+
+        random_severity = 'RANDOM_SEVERITY_LEVEL'
+
+        assert_not Bellman.config.severities.include?(random_severity)
+
+        error = assert_raises(StandardError) do
+          handler.handle('Should raise', severity: random_severity)
+        end
+
+        assert_equal \
+          "Unknown severity level #{random_severity}. " \
+          "Must be one of #{Bellman.config.severities}",
+          error.message
       end
     end
   end

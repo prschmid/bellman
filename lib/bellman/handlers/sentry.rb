@@ -47,9 +47,21 @@ module Bellman
       private
 
       def set_sentry_context(scope, objects)
+        # We are organizing the objects by class so that we can send the data
+        # on a per class basis. Note, we cannot just loop over the objects
+        # if we are using the class name as the key since this would mean that
+        # any time there are multiple objects of the same type, we'd only send
+        # the data for the last one as it would overwrite the data.
+        h = {}
         objects.each do |object|
+          key = object.class.name
+          h[key] = [] unless h.key?(key)
+          h[key] << object
+        end
+
+        h.each do |key, obj_array|
           scope.set_context(
-            object.class.name, { id: object.id }
+            key, { ids: obj_array.map(&:id) }
           )
         end
       end
