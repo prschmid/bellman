@@ -19,6 +19,7 @@ module Bellman
     # Set the defaults
     config.severities = %i[debug info warn error fatal].freeze
     config.default_severity = :error
+    config.on_unknown_severity = :raise
     config.handlers = [
       {
         id: :log,
@@ -38,12 +39,12 @@ module Bellman
     @handler = Handlers::Handler.new
   end
 
-  def self.handler
-    @handler
-  end
-
-  def self.error_handler(id:)
-    @handler.handlers.find { |hndlr| hndlr[:id] == id.to_sym }
+  def self.handler(id: nil)
+    if id.nil?
+      @handler
+    else
+      @handler.handlers.find { |hndlr| hndlr[:id] == id.to_sym }
+    end
   end
 
   # rubocop:disable Metrics/ParameterLists

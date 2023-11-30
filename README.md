@@ -81,6 +81,12 @@ For example, here is a common configuration for when an application uses the Rai
 ```ruby
 Bellman.configure do |config|
   config.default_severity = :error
+
+  # Anything other than :raise will set the severity level to the default
+  # severity if an unkown one is past. By default Bellman will raise an error
+  # so that you can catch your mistakes in development
+  config.on_unknown_severity = :raise  
+  
   config.handlers = [
       {
         id: :log,

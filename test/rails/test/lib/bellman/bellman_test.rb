@@ -35,7 +35,7 @@ class BellmanTest < Minitest::Test
       id = test_case[0]
       klass = test_case[1]
 
-      handler = Bellman.error_handler(id:)
+      handler = Bellman.handler(id:)
 
       assert_equal klass, handler[:class]
     end

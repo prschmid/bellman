@@ -14,10 +14,8 @@ module Bellman
       # rubocop:disable Metrics/ParameterLists
       def handle(error, severity: :error, trace_id: nil, objects: nil,
                  data: nil, include_backtrace: false, handlers: nil)
-        unless Bellman.config.severities.include?(severity)
-          severity = Bellman.config.default_severity
-        end
 
+        severity = handle_severity(severity)
         handlers = if handlers.present?
                      process_handlers_config(handlers)
                    else
@@ -42,6 +40,16 @@ module Bellman
       # rubocop:enable Metrics/ParameterLists
 
       private
+
+      def handle_severity(severity)
+        return severity if Bellman.config.severities.include?(severity)
+        if Bellman.config.on_unknown_severity != :raise
+          return Bellman.config.default_severity
+        end
+
+        raise "Unknown severity level #{severity}. " \
+              "Must be one of #{Bellman.config.severities}"
+      end
 
       def process_handlers_config(configs)
         configs.map { |config| process_handler_config(config) }
@@ -68,7 +76,7 @@ module Bellman
                                config[:class].new(**config[:params])
                              end
         elsif config[:id]
-          config = Bellman.error_handler(config[:id])
+          config = Bellman.handler(config[:id])
           config[:handler] = if config[:params].blank?
                                config[:class].new
                              else
@@ -88,12 +96,12 @@ module Bellman
 
         case config
         when Symbol
-          handler = Bellman.error_handler(id: config)
+          handler = Bellman.handler(id: config)
           return handler if handler
         when String
           # If the string matches the ID of a handler defined in the Bellman
           # default config, return that.
-          handler = Bellman.error_handler(id: config.to_sym)
+          handler = Bellman.handler(id: config.to_sym)
           return handler if handler
 
           # rubocop:disable Lint/SuppressedException
