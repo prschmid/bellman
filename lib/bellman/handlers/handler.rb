@@ -14,7 +14,6 @@ module Bellman
       # rubocop:disable Metrics/ParameterLists
       def handle(error, severity: :error, trace_id: nil, objects: nil,
                  data: nil, include_backtrace: false, handlers: nil)
-
         severity = handle_severity(severity)
         handlers = if handlers.present?
                      process_handlers_config(handlers)
