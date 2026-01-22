@@ -45,7 +45,7 @@ module Bellman
   def self.configure
     # Set the defaults
     @config = Config.new
-    
+
     # Yield to block if given
     yield(config) if block_given?
 
