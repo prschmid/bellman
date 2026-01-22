@@ -13,27 +13,41 @@
 # For historical details on a bellman/town crier see:
 #   https://en.wikipedia.org/wiki/Town_crier
 module Bellman
-  include ActiveSupport::Configurable
+  # Config object to emulate ActiveSupport::Configurable behavior that is
+  # deprecated in Rails 8.2
+  class Config
+    attr_accessor :severities, :default_severity, :on_unknown_severity,
+                  :handlers
+
+    def initialize
+      @severities = %i[debug info warn error fatal].freeze
+      @default_severity = :error
+      @on_unknown_severity = :raise
+      @handlers = [
+        {
+          id: :log,
+          class: Bellman::Handlers::RailsLogger,
+          severities: %i[debug info warn error fatal]
+        },
+        {
+          id: :sentry,
+          class: Bellman::Handlers::Sentry,
+          severities: %i[error fatal]
+        }
+      ]
+    end
+  end
+
+  def self.config
+    @config ||= Config.new
+  end
 
   def self.configure
     # Set the defaults
-    config.severities = %i[debug info warn error fatal].freeze
-    config.default_severity = :error
-    config.on_unknown_severity = :raise
-    config.handlers = [
-      {
-        id: :log,
-        class: Bellman::Handlers::RailsLogger,
-        severities: %i[debug info warn error fatal]
-      },
-      {
-        id: :sentry,
-        class: Bellman::Handlers::Sentry,
-        severities: %i[error fatal]
-      }
-    ]
+    @config = Config.new
 
-    super
+    # Yield to block if given
+    yield(config) if block_given?
 
     # Create an instance of the handler that can be used
     @handler = Handlers::Handler.new
