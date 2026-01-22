@@ -140,7 +140,8 @@ GEM
     marcel (1.1.0)
     matrix (0.4.3)
     mini_mime (1.1.5)
-    minitest (5.27.0)
+    minitest (6.0.1)
+      prism (~> 1.5)
     msgpack (1.8.0)
     net-imap (0.6.2)
       date
@@ -333,7 +334,7 @@ DEPENDENCIES
   capybara
   cssbundling-rails
   debug
-  minitest (~> 5.0)
+  minitest (~> 6.0)
   propshaft
   puma (~> 7.2)
   rails (~> 8.1.2)
